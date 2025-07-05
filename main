@@ -1,0 +1,80 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib
+
+
+matplotlib.rcParams['font.family'] = 'Meiryo'
+
+#項目数入力
+テスト項目数=100
+#テスト期間入力（テスト期間が7日の場合8と入力する）
+dda=8
+
+
+days = list(range(1, dda))
+
+nna= -1
+
+#除外項目処理
+def jogai(x,y):
+     if not x:
+       return None
+     
+     for num in reversed(x):
+         if num not in y:
+             return num
+     return 0
+
+#残項目を入力
+テスト消化実績 = [90,80,75,75,60,0,nna]
+exclude={nna}
+kkk=jogai(テスト消化実績,exclude)
+
+#不具合の数を入力
+不具合報告数 = [10, 30,70,100,100,nna,nna]
+
+total = sum(x for x in 不具合報告数 if x != nna)
+
+# 0をNoneに変換
+def replace_zero_with_none(data):
+  #  return [v if v != 0  else None for v in data]
+     return [None if v == nna else v for v in data]
+     
+
+実績_非ゼロ = replace_zero_with_none(テスト消化実績)
+バグ_非ゼロ = replace_zero_with_none(不具合報告数)
+
+# 参考データ生成
+initial_tests = テスト項目数
+テスト消化予定 = np.linspace(initial_tests, 0, num=len(days))
+バグ検出予定 = np.linspace(0, 不具合報告数[-1], num=len(days))
+
+
+# グラフ描画
+
+fig, ax = plt.subplots()
+
+plt.text(1, テスト項目数, f"テスト項目数: {テスト項目数}", fontsize=12, ha="center", va="bottom", color="black")
+plt.plot(days, 実績_非ゼロ, label="テスト消化実績", marker="o")
+plt.plot(days, テスト消化予定, label="テスト消化予定", marker="o")
+plt.plot(days, バグ_非ゼロ, label="不具合報告数", marker="o",color="red")
+#plt.plot(days, 修正対応数, label="修正対応数", marker="o",color="black")
+plt.text(1, -10, "開始", ha="center", va="top", fontsize=12)
+plt.text(dda-1, -10, "終了", ha="center", va="top", fontsize=12)
+
+
+
+
+# Figureの右外にテキストを置く（相対座標で表示）
+fig.text(0.8, 0.5, f"不具合数合計：{total}", fontsize=12,
+         ha="left", va="center", color="blue")
+fig.text(0.8, 0.4, f"残項目数：{kkk}", fontsize=12,
+         ha="left", va="center", color="blue")
+
+plt.xlabel("日数",fontsize=14)
+plt.ylabel("テスト項目数",fontsize=14)
+plt.title("テスト・バグ実績グラフ")
+plt.xticks(days, fontsize=12)
+plt.legend()
+plt.grid(True)
+plt.show()
